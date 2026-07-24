@@ -1,4 +1,6 @@
-package  org.osigie.config;
+package org.osigie.config;
+
+import java.util.Objects;
 
 public class ApplicationProperties {
     private final String name;
@@ -6,24 +8,24 @@ public class ApplicationProperties {
     private final String chunksPath;
     private final String checkpointPath;
     private final String resultPath;
-    private final String configPath;
     private final String geminiApiKey;
     private final String geminiModel;
     private final String xUserName;
     private final Criteria criteria;
 
-    public ApplicationProperties(Builder builder) {
+
+    private ApplicationProperties(Builder builder) {
         this.name = builder.name;
         this.sourcePath = builder.sourcePath;
         this.chunksPath = builder.chunksPath;
         this.checkpointPath = builder.checkpointPath;
         this.resultPath = builder.resultPath;
-        this.configPath = builder.configPath;
         this.geminiApiKey = builder.geminiApiKey;
         this.geminiModel = builder.geminiModel;
         this.xUserName = builder.xUserName;
         this.criteria = builder.criteria;
     }
+
 
     public String getName() {
         return name;
@@ -45,9 +47,6 @@ public class ApplicationProperties {
         return resultPath;
     }
 
-    public String getConfigPath() {
-        return configPath;
-    }
 
     public String getGeminiApiKey() {
         return geminiApiKey;
@@ -67,27 +66,42 @@ public class ApplicationProperties {
 
     public static class Builder {
 
-        //required parameters
-        private final String geminiApiKey;
-        private final String geminiModel;
-        private final String xUserName;
-        private final Criteria criteria;
+        private Criteria criteria;
+        private String geminiApiKey;
+        private String geminiModel;
+        private String xUserName;
 
 
-        //optional parameters
-        private String name = "TweetApp";
-        private String sourcePath = "./data/source.json";
-        private String chunksPath = "./data/chunks/*.bin";
-        private String checkpointPath = "./data/checkpoint.txt";
-        private String resultPath = "./data/analyzed/results.csv";
-        private String configPath = "";
+        private String name = Constants.APP_NAME;
+        private String sourcePath = Constants.DEFAULT_SOURCE_PATH;
+        private String chunksPath = Constants.DEFAULT_CHUNKS_DIR;
+        private String checkpointPath = Constants.DEFAULT_CHECKPOINT_PATH;
+        private String resultPath = Constants.DEFAULT_RESULT_PATH;
 
-        private Builder(String geminiApiKey, String geminiModel, String xUserName, Criteria criteria) {
-            this.geminiApiKey = geminiApiKey;
-            this.geminiModel = geminiModel;
-            this.xUserName = xUserName;
-            this.criteria = criteria;
+        public Builder() {
         }
+
+
+        public Builder setCriteria(Criteria criteria) {
+            this.criteria = criteria;
+            return this;
+        }
+
+        public Builder setGeminiApiKey(String geminiApiKey) {
+            this.geminiApiKey = geminiApiKey;
+            return this;
+        }
+
+        public Builder setGeminiModel(String geminiModel) {
+            this.geminiModel = geminiModel;
+            return this;
+        }
+
+        public Builder setxUserName(String xUserName) {
+            this.xUserName = xUserName;
+            return this;
+        }
+
 
         public Builder setName(String name) {
             this.name = name;
@@ -114,15 +128,19 @@ public class ApplicationProperties {
             return this;
         }
 
-        public Builder setConfigPath(String configPath) {
-            this.configPath = configPath;
-            return this;
-        }
 
         public ApplicationProperties build() {
+            Objects.requireNonNull(criteria, "criteria cannot be null");
+            Objects.requireNonNull(geminiApiKey, "geminiApiKey cannot be null");
+            Objects.requireNonNull(geminiModel, "geminiModel cannot be null");
+            Objects.requireNonNull(xUserName, "xUserName cannot be null");
             return new ApplicationProperties(this);
         }
 
+    }
+
+    public static Builder Builder() {
+        return new Builder();
     }
 
 

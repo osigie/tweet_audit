@@ -1,4 +1,21 @@
 package org.osigie.config;
 
-public class Constants {
+public final class Constants {
+    private Constants() {
+    }
+
+    //ENV KEYS
+    public static final String GEMINI_API_KEY = "GEMINI_API_KEY";
+    public static final String GEMINI_MODEL = "GEMINI_MODEL";
+    public static final String X_USERNAME = "X_USERNAME";
+
+
+    public static final String DEFAULT_CONFIG_PATH = "config.json";
+    public static final String DEFAULT_CHUNKS_DIR = "./data/chunks/";
+    public static final String DEFAULT_CHECKPOINT_PATH = "./data/checkpoint.txt";
+    public static final String DEFAULT_SOURCE_PATH = "./data/source.json";
+    public static final String DEFAULT_RESULT_PATH = "./data/analyzed/results.csv";
+    public static final String APP_NAME = "TweetAudit";
+
+
 }
