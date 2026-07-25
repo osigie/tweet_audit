@@ -12,6 +12,7 @@ public class ApplicationProperties {
     private final String geminiModel;
     private final String xUserName;
     private final Criteria criteria;
+    private final long chunksMaxSizeInBytes;
 
 
     private ApplicationProperties(Builder builder) {
@@ -24,6 +25,7 @@ public class ApplicationProperties {
         this.geminiModel = builder.geminiModel;
         this.xUserName = builder.xUserName;
         this.criteria = builder.criteria;
+        this.chunksMaxSizeInBytes = builder.chunksMaxSizeInBytes;
     }
 
 
@@ -64,6 +66,10 @@ public class ApplicationProperties {
         return criteria;
     }
 
+    public long getChunksMaxSizeInBytes() {
+        return chunksMaxSizeInBytes;
+    }
+
     public static class Builder {
 
         private Criteria criteria;
@@ -72,15 +78,21 @@ public class ApplicationProperties {
         private String xUserName;
 
 
-        private String name = Constants.APP_NAME;
+        private String name = Constants.DEFAULT_APP_NAME;
         private String sourcePath = Constants.DEFAULT_SOURCE_PATH;
         private String chunksPath = Constants.DEFAULT_CHUNKS_DIR;
         private String checkpointPath = Constants.DEFAULT_CHECKPOINT_PATH;
         private String resultPath = Constants.DEFAULT_RESULT_PATH;
+        private long chunksMaxSizeInBytes = Constants.DEFAULT_CHUNKS_MAX_SIZE_IN_BYTES;
 
         public Builder() {
         }
 
+
+        public Builder setChunksMaxSizeInBytes(long chunksMaxSizeInBytes) {
+            this.chunksMaxSizeInBytes = chunksMaxSizeInBytes;
+            return this;
+        }
 
         public Builder setCriteria(Criteria criteria) {
             this.criteria = criteria;

@@ -1,0 +1,54 @@
+package org.osigie.auditor;
+
+import org.osigie.extractor.chunks.Segment;
+import org.osigie.model.TweetRecord;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
+public class AuditResultWriter implements AutoCloseable {
+    private static final String[] HEADERS = {"tweet_url", "deleted"};
+
+    private final BufferedWriter writer;
+    private final String xUserName;
+
+    public AuditResultWriter(String resultPath, String xUserName) throws IOException {
+        Path path = Path.of(resultPath);
+        this.xUserName = xUserName;
+
+        boolean writeHeader = Files.notExists(path) || Files.size(path) == 0;
+
+        Files.createDirectories(path.getParent());
+
+        this.writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+
+        if (writeHeader) {
+            writer.write(String.join(",", HEADERS));
+            writer.newLine();
+            writer.flush();
+        }
+    }
+
+    public void append(TweetRecord tweet, boolean deleted)
+            throws IOException {
+
+        writer.write(createURL(tweet.id()) + "," + deleted);
+        writer.newLine();
+    }
+
+    public void flush() throws IOException {
+        writer.flush();
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
+    }
+
+    private String createURL(String tweetId) {
+        return String.format("https://x.com/%s/status/%s", xUserName, tweetId);
+    }
+}
