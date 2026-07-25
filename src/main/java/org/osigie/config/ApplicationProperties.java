@@ -13,6 +13,7 @@ public class ApplicationProperties {
     private final String xUserName;
     private final Criteria criteria;
     private final long chunksMaxSizeInBytes;
+    private final int batchSize;
 
 
     private ApplicationProperties(Builder builder) {
@@ -26,6 +27,7 @@ public class ApplicationProperties {
         this.xUserName = builder.xUserName;
         this.criteria = builder.criteria;
         this.chunksMaxSizeInBytes = builder.chunksMaxSizeInBytes;
+        this.batchSize = builder.batchSize;
     }
 
 
@@ -70,6 +72,10 @@ public class ApplicationProperties {
         return chunksMaxSizeInBytes;
     }
 
+    public int getBatchSize() {
+        return batchSize;
+    }
+
     public static class Builder {
 
         private Criteria criteria;
@@ -84,10 +90,17 @@ public class ApplicationProperties {
         private String checkpointPath = Constants.DEFAULT_CHECKPOINT_PATH;
         private String resultPath = Constants.DEFAULT_RESULT_PATH;
         private long chunksMaxSizeInBytes = Constants.DEFAULT_CHUNKS_MAX_SIZE_IN_BYTES;
+        public int batchSize = Constants.DEFAULT_BATCH_SIZE;
+
 
         public Builder() {
         }
 
+
+        public Builder setBatchSize(int batchSize) {
+            this.batchSize = batchSize;
+            return this;
+        }
 
         public Builder setChunksMaxSizeInBytes(long chunksMaxSizeInBytes) {
             this.chunksMaxSizeInBytes = chunksMaxSizeInBytes;

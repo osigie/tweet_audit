@@ -1,12 +1,11 @@
 package org.osigie.auditor;
 
+import org.osigie.Util;
+import org.osigie.extractor.chunks.Entry;
 import org.osigie.model.CheckpointEntry;
 import org.osigie.model.TweetRecord;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -15,10 +14,12 @@ import java.util.List;
 public class ChunkReader implements AutoCloseable {
     private final DataInputStream input;
     private final CheckpointEntry checkpointEntry;
+    private final long segmentBaseOffset;
 
-    public ChunkReader(Path path, CheckpointEntry checkpointEntry) throws IOException {
+    public ChunkReader(Path path, CheckpointEntry checkpointEntry, long segmentBaseOffset) throws IOException {
         this.checkpointEntry = checkpointEntry;
         this.input = new DataInputStream(new BufferedInputStream(Files.newInputStream(path)));
+        this.segmentBaseOffset = segmentBaseOffset;
     }
 
     public List<TweetRecord> nextBatch(int batchSize) throws IOException {
@@ -26,16 +27,33 @@ public class ChunkReader implements AutoCloseable {
 
         while (records.size() < batchSize) {
             try {
+
                 long entryIndex = input.readLong();
+
+                long savedCheckSum = input.readLong();
+
+                int length = input.readInt();
+
+                byte[] data = new byte[length];
+
+                input.readFully(data);
 
                 if (entryIndex < checkpointEntry.entryIndex()) {
                     continue;
                 }
 
-                String id = input.readUTF();
-                String text = input.readUTF();
+                if (savedCheckSum != Entry.calculateCheckSum(data)) {
+                    throw new IOException("Checksum mismatch");
+                }
 
-                records.add(new TweetRecord(entryIndex, checkpointEntry.chunkIndex(), id, text));
+                try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
+
+                    String entry = dis.readUTF();
+
+                    String[] entryData = Util.deserializeChunkData(entry);
+                    records.add(new TweetRecord(entryIndex, segmentBaseOffset, entryData[0], entryData[1]));
+                }
+
             } catch (EOFException e) {
                 break;
             }

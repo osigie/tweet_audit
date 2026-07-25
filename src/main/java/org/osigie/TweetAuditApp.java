@@ -12,7 +12,7 @@ import org.osigie.extractor.TweetExtractor;
 import java.io.IOException;
 
 public class TweetAuditApp {
-    static void main() throws IOException {
+    static void main() throws Exception {
         /*
         FILE -> SEGMENTED FILES (CHUNKS)[] -> CHECKPOINT(SKIP) -> ANALYZE -> WRITE RESULT
 
@@ -28,7 +28,7 @@ public class TweetAuditApp {
         AuditResultWriter auditResultWriter = new AuditResultWriter(ppties.getResultPath(), ppties.getxUserName());
         CheckpointStore checkpointStore = new CheckpointStore(ppties.getCheckpointPath());
 
-        TweetAuditor tweetAuditor = new TweetAuditor(auditClient, ppties.getChunksPath(), auditResultWriter, checkpointStore);
+        TweetAuditor tweetAuditor = new TweetAuditor(auditClient, ppties.getChunksPath(), auditResultWriter, checkpointStore, ppties.getBatchSize());
 
         tweetAuditor.run();
     }

@@ -20,7 +20,7 @@ public class CheckpointStore {
     }
 
     private String serialize(CheckpointEntry entry) {
-        return String.format("%s,%s", entry.entryIndex(), entry.chunkIndex());
+        return String.format("%s,%s", entry.entryIndex(), entry.segmentBaseOffset());
     }
 
     private CheckpointEntry deserialize(String entry) {

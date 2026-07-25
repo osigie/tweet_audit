@@ -1,5 +1,6 @@
 package org.osigie.extractor.chunks;
 
+import org.osigie.Util;
 import org.osigie.config.Constants;
 
 import java.io.ByteArrayOutputStream;
@@ -40,7 +41,7 @@ public class TweetsChunks {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try (DataOutputStream dos = new DataOutputStream(baos)) {
-            dos.writeUTF(createChunkData(id, text));
+            dos.writeUTF(Util.serializeChunkData(id, text));
         }
 
         if (openSegment.getCurrentSize() >= maxSegmentSize) {
@@ -52,8 +53,4 @@ public class TweetsChunks {
 
     }
 
-
-    private String createChunkData(String id, String text) {
-        return String.format("%s,%s", id, text);
-    }
 }

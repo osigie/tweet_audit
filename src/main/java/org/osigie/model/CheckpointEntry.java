@@ -1,5 +1,5 @@
 package org.osigie.model;
 
 
-public record CheckpointEntry(long entryIndex, int chunkIndex) {
+public record CheckpointEntry(long entryIndex, long segmentBaseOffset) {
 }

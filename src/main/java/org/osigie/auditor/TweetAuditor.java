@@ -17,64 +17,82 @@ public class TweetAuditor {
     private final String chunkPath;
     private final AuditResultWriter auditResultWriter;
     private final CheckpointStore checkpointStore;
+    private final int batchSize;
 
     public TweetAuditor(AuditClient auditClient, String chunkPath,
                         AuditResultWriter auditResultWriter,
-                        CheckpointStore checkpointStore) {
+                        CheckpointStore checkpointStore, int batchSize) {
         this.auditClient = auditClient;
         this.chunkPath = chunkPath;
         this.auditResultWriter = auditResultWriter;
         this.checkpointStore = checkpointStore;
+        this.batchSize = batchSize;
     }
 
-    public void run() throws IOException {
-        CheckpointEntry checkpointEntry = checkpointStore.load().orElse(new CheckpointEntry(0, 0));
+    public void run() throws Exception {
 
-        Segment segment = loadSegment(checkpointEntry.chunkIndex());
+        CheckpointEntry checkpoint =
+                checkpointStore.load()
+                        .orElse(new CheckpointEntry(0, 0));
 
-        try (ChunkReader reader = new ChunkReader(segment.getPath(), checkpointEntry)) {
+        List<Segment> segments = loadSegments();
+
+        for (Segment segment : segments) {
+
+            if (segment.getBaseOffset() < checkpoint.segmentBaseOffset()) {
+                continue;
+            }
+            processSegment(segment, checkpoint);
+
+            checkpoint = new CheckpointEntry(0, 0);
+        }
+    }
+
+    private void processSegment(
+            Segment segment,
+            CheckpointEntry checkpoint
+    ) throws Exception {
+
+        try (ChunkReader reader = new ChunkReader(segment.getPath(), checkpoint, segment.getBaseOffset())) {
 
             List<TweetRecord> batch;
             TweetRecord current = null;
 
-            while (!(batch = reader.nextBatch(10)).isEmpty()) {
+            while (!(batch = reader.nextBatch(batchSize)).isEmpty()) {
 
                 for (TweetRecord record : batch) {
-
                     boolean deleted = auditClient.audit(record);
 
                     auditResultWriter.append(record, deleted);
 
                     current = record;
-
                 }
                 auditResultWriter.flush();
 
-                checkpointStore.save(new CheckpointEntry(current.entryIndex(), current.chunkIndex()));
-
+                checkpointStore.save(
+                        new CheckpointEntry(
+                                current.entryIndex() + 1,
+                                current.segmentBaseOffset()
+                        )
+                );
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
-    private Segment loadSegment(int chunkIndex) throws IOException {
-        Path chunkDirPath = Path.of(chunkPath);
 
-        try (Stream<Path> paths = Files.list(chunkDirPath)) {
-
-            Path path = paths
-                    .filter(p -> p.getFileName().toString().startsWith(Constants.CHUNKS_PATH_PREFIX))
-                    .filter(p -> extractOffSetFromFileName(p) == chunkIndex)
-                    .findFirst()
-                    .orElseThrow(() ->
-                            new IllegalStateException("No segment found for chunk index " + chunkIndex));
-
-            return new Segment(path, chunkIndex);
-
+    private List<Segment> loadSegments() throws IOException {
+        try (Stream<Path> path = Files.list(Path.of(chunkPath))) {
+            return path.filter(p -> p.getFileName().toString().startsWith(Constants.CHUNKS_PATH_PREFIX))
+                    .map(p -> {
+                        try {
+                            return new Segment(p, extractOffSetFromFileName(p));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .sorted(Comparator.comparingLong(Segment::getBaseOffset))
+                    .toList();
         }
-
-
     }
 
     private long extractOffSetFromFileName(Path path) {

@@ -24,6 +24,7 @@ public class Segment {
              DataOutputStream dos = new DataOutputStream(os)) {
 
             dos.writeLong(entry.entryIndex);
+            dos.writeLong(entry.checkSum);
             dos.writeInt(entry.data.length);
             dos.write(entry.data);
 
