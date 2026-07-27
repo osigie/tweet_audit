@@ -1,9 +1,8 @@
-package org.osigie.extractor;
+package org.osigie.io.extractor;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import org.osigie.config.Constants;
-import org.osigie.extractor.chunks.TweetsChunks;
 import org.osigie.model.TweetWrapper;
 
 import java.io.IOException;

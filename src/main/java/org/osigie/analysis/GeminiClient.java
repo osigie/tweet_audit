@@ -1,4 +1,4 @@
-package org.osigie.auditor;
+package org.osigie.analysis;
 
 public class GeminiClient {
 }

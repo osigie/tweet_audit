@@ -1,18 +1,13 @@
-package org.osigie.extractor.chunks;
+package org.osigie.io.extractor;
 
 import org.osigie.Util;
 import org.osigie.config.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 public class TweetsChunks {
     private final String chunkDirectory;
@@ -22,7 +17,6 @@ public class TweetsChunks {
 
 
     public TweetsChunks(String directory, long maxSegmentSize) throws IOException {
-//        TODO: add validation
         this.chunkDirectory = directory;
         this.maxSegmentSize = maxSegmentSize;
 

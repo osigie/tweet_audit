@@ -1,4 +1,4 @@
-package org.osigie.extractor.chunks;
+package org.osigie.io.extractor;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -28,7 +28,6 @@ public class Segment {
             dos.writeInt(entry.data.length);
             dos.write(entry.data);
 
-            //Might have to flush at every completion of a chunk
             os.flush();
 
             this.currentSize = Files.size(path);

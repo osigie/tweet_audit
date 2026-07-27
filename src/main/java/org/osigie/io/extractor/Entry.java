@@ -1,4 +1,4 @@
-package org.osigie.extractor.chunks;
+package org.osigie.io.extractor;
 
 import java.io.Serial;
 import java.io.Serializable;

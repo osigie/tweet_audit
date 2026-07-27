@@ -1,6 +1,6 @@
-package org.osigie.auditor;
+package org.osigie.io.impl;
 
-import org.osigie.extractor.chunks.Segment;
+import org.osigie.io.ResultWriter;
 import org.osigie.model.TweetRecord;
 
 import java.io.BufferedWriter;
@@ -9,13 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-public class AuditResultWriter implements AutoCloseable {
+public class FileResultWriter implements ResultWriter {
     private static final String[] HEADERS = {"tweet_url", "deleted"};
 
     private final BufferedWriter writer;
     private final String xUserName;
 
-    public AuditResultWriter(String resultPath, String xUserName) throws IOException {
+    public FileResultWriter(String resultPath, String xUserName) throws IOException {
         Path path = Path.of(resultPath);
         this.xUserName = xUserName;
 

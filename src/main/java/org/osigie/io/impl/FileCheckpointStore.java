@@ -1,5 +1,6 @@
-package org.osigie.checkpoint;
+package org.osigie.io.impl;
 
+import org.osigie.io.CheckpointStore;
 import org.osigie.model.CheckpointEntry;
 
 import java.io.IOException;
@@ -8,10 +9,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 
-public class CheckpointStore {
+public class FileCheckpointStore implements CheckpointStore {
     private final Path checkpoint;
 
-    public CheckpointStore(String checkpointPath) {
+    public FileCheckpointStore(String checkpointPath) {
         this.checkpoint = Path.of(checkpointPath);
     }
 

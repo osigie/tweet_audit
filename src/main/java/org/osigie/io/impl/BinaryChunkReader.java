@@ -1,24 +1,23 @@
-package org.osigie.auditor;
+package org.osigie.io.impl;
 
 import org.osigie.Util;
-import org.osigie.extractor.chunks.Entry;
+import org.osigie.io.ChunkReader;
+import org.osigie.io.extractor.Entry;
 import org.osigie.model.CheckpointEntry;
 import org.osigie.model.TweetRecord;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChunkReader implements AutoCloseable {
+public class BinaryChunkReader implements ChunkReader {
     private final DataInputStream input;
     private final CheckpointEntry checkpointEntry;
     private final long segmentBaseOffset;
 
-    public ChunkReader(Path path, CheckpointEntry checkpointEntry, long segmentBaseOffset) throws IOException {
+    public BinaryChunkReader(InputStream input, CheckpointEntry checkpointEntry, long segmentBaseOffset) {
         this.checkpointEntry = checkpointEntry;
-        this.input = new DataInputStream(new BufferedInputStream(Files.newInputStream(path)));
+        this.input = new DataInputStream(new BufferedInputStream(input));
         this.segmentBaseOffset = segmentBaseOffset;
     }
 

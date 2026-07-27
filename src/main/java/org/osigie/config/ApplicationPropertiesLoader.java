@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 public class ApplicationPropertiesLoader {
 
@@ -28,13 +29,16 @@ public class ApplicationPropertiesLoader {
     private ApplicationPropertiesLoader() {
     }
 
-
     public static ApplicationProperties load() {
-        String geminiApiKey = System.getenv(Constants.GEMINI_API_KEY);
-        String geminiModel = System.getenv(Constants.GEMINI_MODEL);
-        String xUsername = System.getenv(Constants.X_USERNAME);
+        return load(System.getenv(), Path.of(Constants.DEFAULT_CONFIG_PATH));
+    }
 
-        Criteria criteria = setUpCriteria();
+    public static ApplicationProperties load(Map<String, String> env, Path configPath) {
+        String geminiApiKey = env.get(Constants.GEMINI_API_KEY);
+        String geminiModel = env.get(Constants.GEMINI_MODEL);
+        String xUsername = env.get(Constants.X_USERNAME);
+
+        Criteria criteria = loadCriteria(configPath);
 
         return ApplicationProperties.Builder()
                 .setGeminiApiKey(geminiApiKey)
@@ -45,14 +49,12 @@ public class ApplicationPropertiesLoader {
 
     }
 
-    private static Criteria setUpCriteria() {
-        Path path = Path.of(Constants.DEFAULT_CONFIG_PATH);
-
-        if (!Files.exists(path)) {
-            throw new IllegalConfigException("Configuration file does not exist");
+    private static Criteria loadCriteria(Path configPath) {
+        if (!Files.exists(configPath)) {
+            throw new IllegalConfigException("Configuration file does not exist: " + configPath);
         }
 
-        try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+        try (Reader reader = Files.newBufferedReader(configPath, StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
             JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
             JsonElement criteria = jsonObject.get("criteria");
