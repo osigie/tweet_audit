@@ -49,6 +49,11 @@ public class TweetExtractor {
             jsonReader.beginArray();
             while (jsonReader.hasNext()) {
                 TweetWrapper wrapper = gson.fromJson(jsonReader, TweetWrapper.class);
+
+                if (isRetweeted(wrapper.tweet().fullText())) {
+                    continue;
+                }
+
                 this.tweetsChunks.append(wrapper.tweet().id(), wrapper.tweet().fullText());
             }
 
@@ -72,4 +77,8 @@ public class TweetExtractor {
         }
     }
 
+
+    private boolean isRetweeted(String text) throws IOException {
+        return text.startsWith("RT @");
+    }
 }

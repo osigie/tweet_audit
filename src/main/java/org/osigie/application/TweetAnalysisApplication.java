@@ -2,6 +2,7 @@ package org.osigie.application;
 
 import org.osigie.analysis.AnalysisClient;
 import org.osigie.analysis.GeminiAnalysisClient;
+import org.osigie.analysis.GeminiClient;
 import org.osigie.analysis.TweetAnalyzer;
 import org.osigie.config.ApplicationProperties;
 import org.osigie.io.FileHandler;
@@ -24,7 +25,9 @@ public class TweetAnalysisApplication {
 
         tweetExtractor.initialize();
 
-        AnalysisClient analysisClient = new GeminiAnalysisClient();
+        GeminiClient geminiClient = new GeminiClient(properties.getGeminiModel(), properties.getGeminiApiKey(), properties.getCriteria());
+
+        AnalysisClient analysisClient = new GeminiAnalysisClient(geminiClient);
 
         FileHandler fileHandler = new DiskFileHandler(
                 properties.getChunksPath(),
