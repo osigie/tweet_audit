@@ -1,4 +1,3 @@
 package org.osigie.model;
 
-public record TweetWrapper(Tweet tweet) {
-}
+public record TweetWrapper(Tweet tweet) { }

@@ -1,10 +1,13 @@
 package org.osigie.io;
 
-import org.osigie.model.TweetRecord;
-
 import java.io.IOException;
 
+import org.osigie.model.TweetRecord;
+
 public interface ResultWriter extends AutoCloseable {
-    void append(TweetRecord record, boolean deleted) throws IOException;
-    void flush() throws IOException;
+  /** Appends a result line for the given tweet. */
+  void append(TweetRecord record, boolean deleted) throws IOException;
+
+  /** Flushes any buffered output to disk. */
+  void flush() throws IOException;
 }

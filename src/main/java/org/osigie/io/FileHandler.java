@@ -1,15 +1,24 @@
 package org.osigie.io;
 
-import org.osigie.model.CheckpointEntry;
-import org.osigie.model.TweetRecord;
-
 import java.io.IOException;
 import java.util.List;
 
+import org.osigie.model.CheckpointEntry;
+import org.osigie.model.TweetRecord;
+
 public interface FileHandler extends AutoCloseable {
-    List<TweetRecord> nextBatch(int batchSize) throws IOException;
-    boolean nextSegment() throws IOException;
-    void saveCheckpoint(CheckpointEntry entry) throws IOException;
-    void writeResult(TweetRecord record) throws IOException;
-    void flush() throws IOException;
+  /** Reads the next batch of tweet records from the current segment. */
+  List<TweetRecord> nextBatch(int batchSize) throws IOException;
+
+  /** Advances to the next segment and returns true if one exists. */
+  boolean nextSegment() throws IOException;
+
+  /** Persists the current processing position so work can resume after interruption. */
+  void saveCheckpoint(CheckpointEntry entry) throws IOException;
+
+  /** Writes a tweet result to the output. */
+  void writeResult(TweetRecord record) throws IOException;
+
+  /** Flushes any buffered output to disk. */
+  void flush() throws IOException;
 }

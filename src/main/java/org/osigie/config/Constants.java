@@ -1,26 +1,23 @@
 package org.osigie.config;
 
+/** Application-wide constants for paths, env vars, and defaults. */
 public final class Constants {
-    private Constants() {
-    }
+  private Constants() { }
 
-    //ENV KEYS
-    public static final String GEMINI_API_KEY = "GEMINI_API_KEY";
-    public static final String GEMINI_MODEL = "GEMINI_MODEL";
-    public static final String X_USERNAME = "X_USERNAME";
+  // ENV KEYS
+  public static final String GEMINI_API_KEY = "GEMINI_API_KEY";
+  public static final String GEMINI_MODEL = "GEMINI_MODEL";
+  public static final String X_USERNAME = "X_USERNAME";
 
+  public static final String DEFAULT_CONFIG_PATH = "config.json";
+  public static final String DEFAULT_CHUNKS_DIR = "./data/chunks/";
+  public static final String DEFAULT_CHECKPOINT_PATH = "./data/checkpoint.txt";
+  public static final String DEFAULT_SOURCE_PATH = "./data/source/tweets.json";
+  public static final String DEFAULT_RESULT_PATH = "./data/analyzed/results.csv";
+  public static final String DEFAULT_APP_NAME = "TweetAudit";
+  public static final long DEFAULT_CHUNKS_MAX_SIZE_IN_BYTES = 1024;
+  public static final int DEFAULT_BATCH_SIZE = 10;
 
-    public static final String DEFAULT_CONFIG_PATH = "config.json";
-    public static final String DEFAULT_CHUNKS_DIR = "./data/chunks/";
-    public static final String DEFAULT_CHECKPOINT_PATH = "./data/checkpoint.txt";
-    public static final String DEFAULT_SOURCE_PATH = "./data/source/tweets.json";
-    public static final String DEFAULT_RESULT_PATH = "./data/analyzed/results.csv";
-    public static final String DEFAULT_APP_NAME = "TweetAudit";
-    public static final long DEFAULT_CHUNKS_MAX_SIZE_IN_BYTES = 1024;
-    public static final int DEFAULT_BATCH_SIZE = 10;
-
-    //    APP CONSTANTS
-    public static final String CHUNKS_PATH_PREFIX = "tweets_";
-
-
+  //    APP CONSTANTS
+  public static final String CHUNKS_PATH_PREFIX = "tweets_";
 }

@@ -1,10 +1,11 @@
 package org.osigie.io;
 
-import org.osigie.model.TweetRecord;
-
 import java.io.IOException;
 import java.util.List;
 
+import org.osigie.model.TweetRecord;
+
 public interface ChunkReader extends AutoCloseable {
-    List<TweetRecord> nextBatch(int batchSize) throws IOException;
+  /** Reads up to batchSize tweet records, skipping already-checkpointed entries. */
+  List<TweetRecord> nextBatch(int batchSize) throws IOException;
 }

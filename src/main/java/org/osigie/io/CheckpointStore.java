@@ -1,11 +1,14 @@
 package org.osigie.io;
 
-import org.osigie.model.CheckpointEntry;
-
 import java.io.IOException;
 import java.util.Optional;
 
+import org.osigie.model.CheckpointEntry;
+
 public interface CheckpointStore {
-    void save(CheckpointEntry entry) throws IOException;
-    Optional<CheckpointEntry> load() throws IOException;
+  /** Saves a checkpoint so processing can resume from this position. */
+  void save(CheckpointEntry entry) throws IOException;
+
+  /** Loads the most recent checkpoint, if one exists. */
+  Optional<CheckpointEntry> load() throws IOException;
 }
