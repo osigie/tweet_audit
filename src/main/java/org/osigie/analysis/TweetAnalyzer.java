@@ -31,12 +31,14 @@ public class TweetAnalyzer {
             List<TweetRecord> batch;
             while (!(batch = fileHandler.nextBatch(batchSize)).isEmpty()) {
 
-                log.debug("Processing batch of {} tweet(s).", batch.size());
+                log.info("Processing batch of {} tweet(s).", batch.size());
 
                 for (TweetRecord record : batch) {
                     boolean shouldDelete;
                     try {
                         shouldDelete = analysisClient.analyze(record);
+                        log.info("Tweet {} analysed. Should delete: {}", record.id(), shouldDelete);
+
                     } catch (AnalysisException e) {
                         log.error(
                                 "Analysis failed for tweet {} (segment={}, entry={}): {}",
@@ -53,23 +55,22 @@ public class TweetAnalyzer {
                         fileHandler.writeResult(record);
                     }
 
+                    CheckpointEntry checkpoint = new CheckpointEntry(
+                            record.entryIndex() + 1,
+                            record.segmentBaseOffset()
+                    );
+                    fileHandler.saveCheckpoint(checkpoint);
+                    fileHandler.flush();
+
+                    log.info(
+                            "Checkpoint saved: nextEntryIndex={}, segmentBaseOffset={}",
+                            checkpoint.entryIndex(),
+                            checkpoint.segmentBaseOffset()
+                    );
+
                     analyzedTweets++;
                 }
-                fileHandler.flush();
-                TweetRecord lastRecord = batch.getLast();
 
-                CheckpointEntry checkpoint = new CheckpointEntry(
-                        lastRecord.entryIndex() + 1,
-                        lastRecord.segmentBaseOffset()
-                );
-                fileHandler.saveCheckpoint(checkpoint);
-
-                log.debug(
-                        "Completed batch of {} tweet(s). Checkpoint saved: nextEntryIndex={}, segmentBaseOffset={}",
-                        batch.size(),
-                        checkpoint.entryIndex(),
-                        checkpoint.segmentBaseOffset()
-                );
             }
         } while (fileHandler.nextSegment());
 
