@@ -10,38 +10,37 @@ import org.osigie.io.extractor.TweetExtractor;
 import org.osigie.io.impl.DiskFileHandler;
 
 public class TweetAnalysisApplication {
-    private final ApplicationProperties properties;
+  private final ApplicationProperties properties;
 
-    public TweetAnalysisApplication(ApplicationProperties properties) {
-        this.properties = properties;
-    }
+  public TweetAnalysisApplication(ApplicationProperties properties) {
+    this.properties = properties;
+  }
 
-    public void run() throws Exception {
-        TweetExtractor tweetExtractor = new TweetExtractor(
-                properties.getChunksPath(),
-                properties.getSourcePath(),
-                properties.getChunksMaxSizeInBytes()
-        );
+  public void run() throws Exception {
+    TweetExtractor tweetExtractor =
+        new TweetExtractor(
+            properties.getChunksPath(),
+            properties.getSourcePath(),
+            properties.getChunksMaxSizeInBytes());
 
-        tweetExtractor.initialize();
+    tweetExtractor.initialize();
 
-        GeminiClient geminiClient = new GeminiClient(properties.getGeminiModel(), properties.getGeminiApiKey(), properties.getCriteria());
+    GeminiClient geminiClient =
+        new GeminiClient(
+            properties.getGeminiModel(), properties.getGeminiApiKey(), properties.getCriteria());
 
-        AnalysisClient analysisClient = new GeminiAnalysisClient(geminiClient);
+    AnalysisClient analysisClient = new GeminiAnalysisClient(geminiClient);
 
-        FileHandler fileHandler = new DiskFileHandler(
-                properties.getChunksPath(),
-                properties.getCheckpointPath(),
-                properties.getResultPath(),
-                properties.getxUserName()
-        );
+    FileHandler fileHandler =
+        new DiskFileHandler(
+            properties.getChunksPath(),
+            properties.getCheckpointPath(),
+            properties.getResultPath(),
+            properties.getUsername());
 
-        TweetAnalyzer tweetAnalyzer = new TweetAnalyzer(
-                analysisClient,
-                fileHandler,
-                properties.getBatchSize()
-        );
+    TweetAnalyzer tweetAnalyzer =
+        new TweetAnalyzer(analysisClient, fileHandler, properties.getBatchSize());
 
-        tweetAnalyzer.run();
-    }
+    tweetAnalyzer.run();
+  }
 }
