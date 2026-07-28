@@ -65,7 +65,7 @@ public class TweetExtractor {
 
             jsonReader.endArray();
 
-            log.info("Successfully extracted:{} of tweets", extractedTweetCount);
+            log.info("Successfully extracted {} tweets", extractedTweetCount);
 
         } catch (IOException e) {
             log.error("Error while extracting tweets: {}", e.getMessage());
