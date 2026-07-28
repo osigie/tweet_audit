@@ -2,8 +2,6 @@ package org.osigie.analysis;
 
 import com.google.genai.Client;
 import com.google.genai.types.*;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import org.osigie.config.Criteria;
 
 import java.util.List;
@@ -14,11 +12,9 @@ public class GeminiClient {
     private final Client client;
     private final String model;
     private final GenerateContentConfig config;
-    private final Gson gson = new Gson();
 
     public GeminiClient(String model, String apiKey, Criteria criteria) {
         this.model = model;
-
 
         String instruction = String.format("""
                 You are a tweet moderation engine.
@@ -56,12 +52,6 @@ public class GeminiClient {
                 .build();
 
         config = GenerateContentConfig.builder()
-                .thinkingConfig(
-                        ThinkingConfig.builder()
-                                .thinkingBudget(0)
-                                .build())
-                .candidateCount(1)
-                .maxOutputTokens(20)
                 .responseMimeType("application/json")
                 .systemInstruction(systemInstruction)
                 .responseSchema(schema)
@@ -70,28 +60,17 @@ public class GeminiClient {
         client = Client.builder()
                 .apiKey(apiKey)
                 .httpOptions(HttpOptions.builder()
-//                TODO: evaluate this timeout
-                        .timeout(600)
+                        .timeout(30_000)
                         .build())
                 .build();
 
     }
 
-    public AnalysisResult generateContent(String tweet) {
+    public String generateContent(String tweet) {
 
         GenerateContentResponse response =
                 client.models.generateContent(model, tweet, config);
-        try {
-            AnalysisResult result = gson.fromJson(response.text(), AnalysisResult.class);
-            if (result == null) {
-                throw new IllegalStateException("Failed to generate content");
-            }
-            return result;
-        } catch (JsonSyntaxException e) {
-            throw new IllegalStateException("Invalid JSON returned by Gemini: " + response.text(),
-                    e);
-
-        }
+        return response.text();
 
     }
 
