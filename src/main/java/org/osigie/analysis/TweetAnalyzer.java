@@ -34,9 +34,9 @@ public class TweetAnalyzer {
                 log.debug("Processing batch of {} tweet(s).", batch.size());
 
                 for (TweetRecord record : batch) {
-                    boolean deleted;
+                    boolean shouldDelete;
                     try {
-                        deleted = analysisClient.analyze(record);
+                        shouldDelete = analysisClient.analyze(record);
                     } catch (AnalysisException e) {
                         log.error(
                                 "Analysis failed for tweet {} (segment={}, entry={}): {}",
@@ -48,10 +48,11 @@ public class TweetAnalyzer {
                         throw e;
                     }
 
-                    fileHandler.writeResult(record, deleted);
-                    if (deleted) {
+                    if (shouldDelete) {
                         analyzedTweetsForDelete++;
+                        fileHandler.writeResult(record);
                     }
+
                     analyzedTweets++;
                 }
                 fileHandler.flush();
