@@ -55,8 +55,8 @@ public class DiskFileHandler implements FileHandler {
     }
 
     @Override
-    public void writeResult(TweetRecord record, boolean deleted) throws IOException {
-        resultWriter.append(record, deleted);
+    public void writeResult(TweetRecord record) throws IOException {
+        resultWriter.append(record, false);
     }
 
     @Override
