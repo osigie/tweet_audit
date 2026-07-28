@@ -16,6 +16,15 @@ public class FileResultWriter implements ResultWriter {
     private final String xUserName;
 
     public FileResultWriter(String resultPath, String xUserName) throws IOException {
+
+        if (resultPath == null || resultPath.isBlank()) {
+            throw new IllegalArgumentException("resultPath path cannot be null or blank");
+        }
+
+        if (xUserName == null || xUserName.isBlank()) {
+            throw new IllegalArgumentException("xUsername path cannot be null or blank");
+        }
+
         Path path = Path.of(resultPath);
         this.xUserName = xUserName;
 

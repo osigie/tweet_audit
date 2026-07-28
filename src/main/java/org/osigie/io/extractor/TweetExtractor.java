@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import org.osigie.config.Constants;
 import org.osigie.model.TweetWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,9 +16,10 @@ public class TweetExtractor {
     private final TweetsChunks tweetsChunks;
     private final String sourcePath;
     private final String destinationPath;
+    private static final Logger log = LoggerFactory.getLogger(TweetExtractor.class);
+    private final Gson gson = new Gson();
 
     public TweetExtractor(String destinationPath, String sourcePath, long maxChunkSize) throws IOException {
-
 
         if (destinationPath == null || destinationPath.isBlank()) {
             throw new IllegalArgumentException("Chunk directory path cannot be blank.");
@@ -33,18 +36,20 @@ public class TweetExtractor {
     }
 
     public void initialize() throws IOException {
+        log.info("Initializing tweet extractor using source: {}", sourcePath);
+
         Path path = Path.of(this.sourcePath);
 
         if (!Files.exists(path)) {
-            throw new RuntimeException("Source file does not exist.");
+            throw new IOException("Source file does not exist.");
         }
 
         if (isExtracted()) {
-            System.out.println("Tweets already extracted.");
+            log.info("Tweets already initialized, skipping tweets initialization.");
             return;
         }
+        long extractedTweetCount = 0;
 
-        Gson gson = new Gson();
         try (JsonReader jsonReader = new JsonReader(Files.newBufferedReader(path))) {
             jsonReader.beginArray();
             while (jsonReader.hasNext()) {
@@ -55,12 +60,16 @@ public class TweetExtractor {
                 }
 
                 this.tweetsChunks.append(wrapper.tweet().id(), wrapper.tweet().fullText());
+                extractedTweetCount++;
             }
 
             jsonReader.endArray();
 
+            log.info("Successfully extracted {} tweets", extractedTweetCount);
+
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Error while extracting tweets: {}", e.getMessage());
+            throw e;
         }
     }
 

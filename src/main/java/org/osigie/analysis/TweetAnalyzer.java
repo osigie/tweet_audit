@@ -7,7 +7,6 @@ import org.osigie.model.TweetRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 
 public class TweetAnalyzer {
@@ -23,35 +22,64 @@ public class TweetAnalyzer {
     }
 
     public void run() throws Exception {
-        do {
-            List<TweetRecord> batch;
-            TweetRecord current = null;
+        log.info("Starting tweet analysis.");
+        long analyzedTweetsForDelete = 0;
+        long analyzedTweets = 0;
 
+        do {
+            log.info("Processing segment.");
+            List<TweetRecord> batch;
             while (!(batch = fileHandler.nextBatch(batchSize)).isEmpty()) {
+
+                log.info("Processing batch of {} tweet(s).", batch.size());
+
                 for (TweetRecord record : batch) {
-                    boolean deleted;
+                    boolean shouldDelete;
                     try {
-                        deleted = analysisClient.analyze(record);
+                        shouldDelete = analysisClient.analyze(record);
+                        log.info("Tweet {} analysed. Should delete: {}", record.id(), shouldDelete);
+
                     } catch (AnalysisException e) {
-                        log.warn(
-                                "Failed to analyse tweet {}: {}",
+                        log.error(
+                                "Analysis failed for tweet {} (segment={}, entry={}): {}",
+                                record.id(),
+                                record.segmentBaseOffset(),
                                 record.entryIndex(),
                                 e.getMessage()
                         );
-                        throw new IOException("Failed to analyse tweet " + record.entryIndex(), e);
+                        throw e;
                     }
 
-                    fileHandler.writeResult(record, deleted);
-                    current = record;
+                    if (shouldDelete) {
+                        analyzedTweetsForDelete++;
+                        fileHandler.writeResult(record);
+                    }
+
+                    CheckpointEntry checkpoint = new CheckpointEntry(
+                            record.entryIndex() + 1,
+                            record.segmentBaseOffset()
+                    );
+                    fileHandler.saveCheckpoint(checkpoint);
+                    fileHandler.flush();
+
+                    log.info(
+                            "Checkpoint saved: nextEntryIndex={}, segmentBaseOffset={}",
+                            checkpoint.entryIndex(),
+                            checkpoint.segmentBaseOffset()
+                    );
+
+                    analyzedTweets++;
                 }
-                fileHandler.flush();
-                fileHandler.saveCheckpoint(
-                        new CheckpointEntry(
-                                current.entryIndex() + 1,
-                                current.segmentBaseOffset()
-                        )
-                );
+
             }
         } while (fileHandler.nextSegment());
+
+        if (analyzedTweets == 0) {
+            log.info("Analysis skipped. All tweets have already been analysed.");
+            return;
+        }
+
+        log.info("Tweet analysis completed successfully. Analysed {} tweet(s) and tweets up for deletes: {}.", analyzedTweets, analyzedTweetsForDelete);
+
     }
 }

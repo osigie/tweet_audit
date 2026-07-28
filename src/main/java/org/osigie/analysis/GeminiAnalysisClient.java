@@ -6,12 +6,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.osigie.exception.AnalysisException;
 import org.osigie.model.TweetRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.util.regex.Pattern;
 
 
 public class GeminiAnalysisClient implements AnalysisClient {
-    private static final Logger log = LoggerFactory.getLogger(GeminiAnalysisClient.class);
+    private static final Pattern RETRY_DELAY_PATTERN = Pattern.compile("Please retry in ([\\d.]+)s");
+    private static final long RETRY_BUFFER_MS = 1000;
+
     private final GeminiClient geminiClient;
     private final Gson gson = new Gson();
     private final RetryHandler retryHandler;
@@ -19,8 +22,22 @@ public class GeminiAnalysisClient implements AnalysisClient {
 
     public GeminiAnalysisClient(GeminiClient geminiClient) {
         this.geminiClient = geminiClient;
-        retryHandler = RetryHandler.withDefaults();
-        requestThrottler = RequestThrottler.withDefault();
+        this.retryHandler = new RetryHandler(3, Duration.ofMillis(500), GeminiAnalysisClient::extractRetryDelay);
+        this.requestThrottler = RequestThrottler.withDefault();
+    }
+
+    private static Duration extractRetryDelay(Exception ex) {
+        if (ex instanceof ApiException api && api.code() == 429) {
+            String msg = ex.getMessage();
+            if (msg != null) {
+                var matcher = RETRY_DELAY_PATTERN.matcher(msg);
+                if (matcher.find()) {
+                    double seconds = Double.parseDouble(matcher.group(1));
+                    return Duration.ofMillis((long) (seconds * 1000) + RETRY_BUFFER_MS);
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -53,7 +70,6 @@ public class GeminiAnalysisClient implements AnalysisClient {
             throw new AnalysisException("Thread interrupted for tweet " + tweet.id(), e);
         } catch (Exception e) {
             throw new AnalysisException("Analysis failed for tweet " + tweet.id(), e);
-
         }
     }
 

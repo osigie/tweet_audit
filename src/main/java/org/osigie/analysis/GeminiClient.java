@@ -16,34 +16,8 @@ public class GeminiClient {
     public GeminiClient(String model, String apiKey, Criteria criteria) {
         this.model = model;
 
-        String instruction = String.format("""
-                You are a tweet moderation engine.
-                
-                Current moderation criteria:
-                - forbidden_words: %s
-                - professional_check: %s
-                - tone: %s
-                - exclude_politics: %s
-                
-                Interpretation:
-                - forbidden_words: match case-insensitively.
-                - professional_check: if enabled, return true if the tweet contains profanity,
-                  insults, harassment, abusive language, sexually explicit language,
-                  or is otherwise unsuitable for a professional public account.
-                - tone: if provided, return true if the tweet's overall tone differs
-                  significantly from the allowed tone(s).
-                - exclude_politics: if enabled, return true if the tweet discusses politics,
-                  politicians, governments, elections, legislation or political parties.
-                
-                Ignore disabled criteria.
-                
-                Return true if ANY enabled criterion is violated.
-                Return false otherwise.
-                """, String.join(",", criteria.forbiddenWords()), criteria.professionalCheck(), criteria.tone(), criteria.excludePolitics());
-
-
+        String instruction = buildInstruction(criteria);
         Content systemInstruction = Content.fromParts(Part.fromText(instruction));
-
 
         Schema schema = Schema.builder()
                 .type(Type.Known.OBJECT)
@@ -52,6 +26,8 @@ public class GeminiClient {
                 .build();
 
         config = GenerateContentConfig.builder()
+                .thinkingConfig(ThinkingConfig.builder().thinkingBudget(0))
+                .candidateCount(1)
                 .responseMimeType("application/json")
                 .systemInstruction(systemInstruction)
                 .responseSchema(schema)
@@ -64,6 +40,30 @@ public class GeminiClient {
                         .build())
                 .build();
 
+    }
+
+    private static String buildInstruction(Criteria criteria) {
+        var sb = new StringBuilder("You moderate tweets against these rules:\n");
+
+        if (!criteria.forbiddenWords().isEmpty()) {
+            sb.append("- forbidden_words: case-insensitive match [")
+              .append(String.join(", ", criteria.forbiddenWords()))
+              .append("]\n");
+        }
+        if (criteria.professionalCheck()) {
+            sb.append("- professional_check: true if profanity, insults, harassment, abuse, or sexually explicit language\n");
+        }
+        if (!criteria.tone().isBlank()) {
+            sb.append("- tone: true if tweet tone differs from \"")
+              .append(criteria.tone())
+              .append("\"\n");
+        }
+        if (criteria.excludePolitics()) {
+            sb.append("- exclude_politics: true if discusses politics, politicians, elections, legislation, or political parties\n");
+        }
+
+        sb.append("\nReturn true if ANY enabled rule is violated, else false.");
+        return sb.toString();
     }
 
     public String generateContent(String tweet) {

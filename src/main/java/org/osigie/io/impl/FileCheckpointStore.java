@@ -13,6 +13,10 @@ public class FileCheckpointStore implements CheckpointStore {
     private final Path checkpoint;
 
     public FileCheckpointStore(String checkpointPath) {
+
+        if (checkpointPath == null || checkpointPath.isBlank()) {
+            throw new IllegalArgumentException("checkpoint path cannot be null or blank");
+        }
         this.checkpoint = Path.of(checkpointPath);
     }
 

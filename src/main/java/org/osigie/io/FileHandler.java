@@ -10,6 +10,6 @@ public interface FileHandler extends AutoCloseable {
     List<TweetRecord> nextBatch(int batchSize) throws IOException;
     boolean nextSegment() throws IOException;
     void saveCheckpoint(CheckpointEntry entry) throws IOException;
-    void writeResult(TweetRecord record, boolean deleted) throws IOException;
+    void writeResult(TweetRecord record) throws IOException;
     void flush() throws IOException;
 }
