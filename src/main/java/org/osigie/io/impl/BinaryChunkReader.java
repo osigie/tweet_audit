@@ -9,6 +9,7 @@ import org.osigie.model.TweetRecord;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BinaryChunkReader implements ChunkReader {
     private final DataInputStream input;
@@ -16,8 +17,9 @@ public class BinaryChunkReader implements ChunkReader {
     private final long segmentBaseOffset;
 
     public BinaryChunkReader(InputStream input, CheckpointEntry checkpointEntry, long segmentBaseOffset) {
-        this.checkpointEntry = checkpointEntry;
-        this.input = new DataInputStream(new BufferedInputStream(input));
+        this.checkpointEntry = Objects.requireNonNull(checkpointEntry, "checkpointEntry cannot be null");
+        this.input = new DataInputStream(new BufferedInputStream
+                (Objects.requireNonNull(input, "input cannot be null")));
         this.segmentBaseOffset = segmentBaseOffset;
     }
 

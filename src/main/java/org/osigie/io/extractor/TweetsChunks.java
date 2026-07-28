@@ -17,6 +17,11 @@ public class TweetsChunks {
 
 
     public TweetsChunks(String directory, long maxSegmentSize) throws IOException {
+
+        if (directory == null || directory.isBlank()) {
+            throw new IllegalArgumentException("directory cannot be blank.");
+        }
+
         this.chunkDirectory = directory;
         this.maxSegmentSize = maxSegmentSize;
 

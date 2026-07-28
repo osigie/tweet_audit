@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Objects;
 
 public class Segment {
 
@@ -13,7 +14,7 @@ public class Segment {
 
 
     public Segment(Path path, long baseOffset) throws IOException {
-        this.path = path;
+        this.path = Objects.requireNonNull(path, "path cannot be null");
         this.baseOffset = baseOffset;
         this.currentSize = Files.exists(path) ? Files.size(path) : 0;
     }

@@ -52,6 +52,8 @@ public class GeminiClient {
                 .build();
 
         config = GenerateContentConfig.builder()
+                .thinkingConfig(ThinkingConfig.builder().thinkingBudget(0))
+                .candidateCount(1)
                 .responseMimeType("application/json")
                 .systemInstruction(systemInstruction)
                 .responseSchema(schema)

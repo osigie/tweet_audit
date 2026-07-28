@@ -2,6 +2,7 @@ package org.osigie.io.extractor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.zip.CRC32;
 
 public class Entry implements Serializable {
@@ -15,7 +16,7 @@ public class Entry implements Serializable {
 
     public Entry(long entryIndex, byte[] data) {
         this.entryIndex = entryIndex;
-        this.data = data;
+        this.data = Objects.requireNonNull(data, "data cannot be null");
         this.checkSum = calculateCheckSum(data);
     }
 
