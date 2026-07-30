@@ -1,19 +1,20 @@
 package org.osigie.application;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.osigie.analysis.AnalysisClient;
-import org.osigie.config.ApplicationProperties;
-import org.osigie.config.Criteria;
-import org.osigie.model.TweetRecord;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.osigie.TestUtil;
+import org.osigie.analysis.AnalysisClient;
+import org.osigie.config.ApplicationProperties;
+import org.osigie.config.Criteria;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TweetAnalysisApplicationTest {
 
@@ -22,7 +23,7 @@ public class TweetAnalysisApplicationTest {
     @Test
     public void givenValidApplicationProperties_whenRun_thenCompleteAnalysis(@TempDir Path tempDir) throws Exception {
         Path source = tempDir.resolve("tweets.json");
-        Files.writeString(source, """  
+        Files.writeString(source, """
                 [{"tweet": {"id": "1", "full_text": "hello"}},
                 {"tweet": {"id": "1", "full_text": "hello"}}]
                 """);
@@ -39,7 +40,7 @@ public class TweetAnalysisApplicationTest {
                 .setCriteria(new Criteria(List.of(), false, "good tone", false))
                 .build();
 
-        AnalysisClient mockAnalysisClient = new MockAnalysisClient();
+        AnalysisClient mockAnalysisClient = new TestUtil.MockAnalysisClient();
 
 
         new TweetAnalysisApplication(properties, mockAnalysisClient).run();
@@ -59,7 +60,7 @@ public class TweetAnalysisApplicationTest {
     public void givenEmptySource_whenRun_thenSkippExtraction(@TempDir Path tempDir) throws Exception {
 
         Path source = tempDir.resolve("tweets.json");
-        Files.writeString(source, """  
+        Files.writeString(source, """
                 []
                 """);
 
@@ -75,7 +76,7 @@ public class TweetAnalysisApplicationTest {
                 .setCriteria(new Criteria(List.of(), false, "good tone", false))
                 .build();
 
-        AnalysisClient mockAnalysisClient = new MockAnalysisClient();
+        AnalysisClient mockAnalysisClient = new TestUtil.MockAnalysisClient();
 
 
         new TweetAnalysisApplication(properties, mockAnalysisClient).run();
@@ -87,12 +88,4 @@ public class TweetAnalysisApplicationTest {
 
     }
 
-
-    private static class MockAnalysisClient implements AnalysisClient {
-
-        @Override
-        public boolean analyze(TweetRecord tweet) {
-            return tweet.entryIndex() == 1;
-        }
-    }
 }

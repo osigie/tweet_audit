@@ -2,7 +2,6 @@ package org.osigie.application;
 
 import org.osigie.analysis.AnalysisClient;
 import org.osigie.analysis.GeminiAnalysisClient;
-import org.osigie.analysis.GeminiClient;
 import org.osigie.analysis.TweetAnalyzer;
 import org.osigie.config.ApplicationProperties;
 import org.osigie.io.FileHandler;
@@ -17,11 +16,11 @@ public class TweetAnalysisApplication {
         if (properties == null) {
             throw new IllegalArgumentException("properties cannot be null");
         }
-        GeminiClient geminiClient =
-                new GeminiClient(
-                        properties.getGeminiModel(), properties.getGeminiApiKey(), properties.getCriteria());
 
-        AnalysisClient analysisClient = new GeminiAnalysisClient(geminiClient);
+        AnalysisClient analysisClient = GeminiAnalysisClient
+                .fromCriteria(properties.getGeminiModel(),
+                        properties.getGeminiApiKey(), properties.getCriteria());
+
         this(properties, analysisClient);
     }
 
