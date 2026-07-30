@@ -34,7 +34,7 @@ public class FileCheckpointStore implements CheckpointStore {
 
   private CheckpointEntry deserialize(String entry) {
     String[] parts = entry.split(",");
-    return new CheckpointEntry(Long.parseLong(parts[0]), Integer.parseInt(parts[1]));
+    return new CheckpointEntry(Long.parseLong(parts[0]), Long.parseLong(parts[1]));
   }
 
   public Optional<CheckpointEntry> load() throws IOException {
