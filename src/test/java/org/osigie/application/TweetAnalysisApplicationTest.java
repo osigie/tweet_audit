@@ -88,4 +88,46 @@ public class TweetAnalysisApplicationTest {
 
     }
 
+
+    @DisplayName("Test checkpoint resumption")
+    @Test
+    public void givenCheckpointWithValue_whenRun_thenShouldContinueFromCheckpoint(@TempDir Path tempDir) throws Exception {
+
+        Path source = tempDir.resolve("tweets.json");
+        Files.writeString(source, """
+                [{"tweet": {"id": "1", "full_text": "hello"}},
+                {"tweet": {"id": "1", "full_text": "hello"}},
+                {"tweet": {"id": "1", "full_text": "hello"}} ]
+                """);
+        Path checkpointPath = tempDir.resolve("checkpoint.txt");
+
+        Files.writeString(checkpointPath, "1,0");
+
+        ApplicationProperties properties = ApplicationProperties.builder()
+                .setSourcePath(source.toString())
+                .setChunksPath(tempDir.resolve("chunks").toString())
+                .setResultPath(tempDir.resolve("result.csv").toString())
+                .setCheckpointPath(checkpointPath.toString())
+                .setGeminiApiKey("test-api-key")
+                .setUsername("test-user")
+                .setGeminiModel("test-model")
+                .setCriteria(new Criteria(List.of(), false, "good tone", false))
+                .build();
+
+        AnalysisClient mockAnalysisClient = new TestUtil.MockAnalysisClient();
+
+        new TweetAnalysisApplication(properties, mockAnalysisClient).run();
+
+        List<String> lines = Files.readAllLines(tempDir.resolve("result.csv"));
+        File chunksFolder = new File(tempDir.resolve("chunks").toString());
+        String checkpoint = Files.readString(checkpointPath).trim();
+
+        File[] chunks = chunksFolder.listFiles();
+        assert chunks != null;
+
+        assertEquals(1, chunks.length);
+        assertEquals(2, lines.size());
+        assertEquals("3,0", checkpoint);
+
+    }
 }

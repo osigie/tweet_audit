@@ -1,16 +1,14 @@
 package org.osigie.analysis;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.osigie.TestUtil;
 import org.osigie.exception.AnalysisException;
 import org.osigie.model.TweetRecord;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TweetAnalyzerTest {

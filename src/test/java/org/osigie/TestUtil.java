@@ -1,13 +1,13 @@
 package org.osigie;
 
+import java.util.*;
+
 import org.osigie.analysis.AnalysisClient;
 import org.osigie.analysis.GeminiClient;
 import org.osigie.exception.AnalysisException;
 import org.osigie.io.FileHandler;
 import org.osigie.model.CheckpointEntry;
 import org.osigie.model.TweetRecord;
-
-import java.util.*;
 
 public final class TestUtil {
 
