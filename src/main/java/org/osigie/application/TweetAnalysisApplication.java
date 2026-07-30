@@ -2,7 +2,6 @@ package org.osigie.application;
 
 import org.osigie.analysis.AnalysisClient;
 import org.osigie.analysis.GeminiAnalysisClient;
-import org.osigie.analysis.GeminiClient;
 import org.osigie.analysis.TweetAnalyzer;
 import org.osigie.config.ApplicationProperties;
 import org.osigie.io.FileHandler;
@@ -10,37 +9,55 @@ import org.osigie.io.extractor.TweetExtractor;
 import org.osigie.io.impl.DiskFileHandler;
 
 public class TweetAnalysisApplication {
-  private final ApplicationProperties properties;
+    private final ApplicationProperties properties;
+    private final AnalysisClient analysisClient;
 
-  public TweetAnalysisApplication(ApplicationProperties properties) {
-    this.properties = properties;
-  }
+    public TweetAnalysisApplication(ApplicationProperties properties) {
+        if (properties == null) {
+            throw new IllegalArgumentException("properties cannot be null");
+        }
 
-  public void run() throws Exception {
-    TweetExtractor tweetExtractor =
-        new TweetExtractor(
-            properties.getChunksPath(),
-            properties.getSourcePath(),
-            properties.getChunksMaxSizeInBytes());
+        AnalysisClient analysisClient = GeminiAnalysisClient
+                .fromCriteria(properties.getGeminiModel(),
+                        properties.getGeminiApiKey(), properties.getCriteria());
 
-    tweetExtractor.initialize();
+        this(properties, analysisClient);
+    }
 
-    GeminiClient geminiClient =
-        new GeminiClient(
-            properties.getGeminiModel(), properties.getGeminiApiKey(), properties.getCriteria());
+    //package private constructor for testing to allow mocking AnalysisClient
+    TweetAnalysisApplication(ApplicationProperties properties, AnalysisClient analysisClient) {
 
-    AnalysisClient analysisClient = new GeminiAnalysisClient(geminiClient);
+        if (properties == null) {
+            throw new IllegalArgumentException("properties cannot be null");
+        }
 
-    FileHandler fileHandler =
-        new DiskFileHandler(
-            properties.getChunksPath(),
-            properties.getCheckpointPath(),
-            properties.getResultPath(),
-            properties.getUsername());
+        if (analysisClient == null) {
+            throw new IllegalArgumentException("analysisClient cannot be null");
+        }
+        this.properties = properties;
+        this.analysisClient = analysisClient;
+    }
 
-    TweetAnalyzer tweetAnalyzer =
-        new TweetAnalyzer(analysisClient, fileHandler, properties.getBatchSize());
+    public void run() throws Exception {
+        TweetExtractor tweetExtractor =
+                new TweetExtractor(
+                        properties.getChunksPath(),
+                        properties.getSourcePath(),
+                        properties.getChunksMaxSizeInBytes());
 
-    tweetAnalyzer.run();
-  }
+        tweetExtractor.initialize();
+
+
+        FileHandler fileHandler =
+                new DiskFileHandler(
+                        properties.getChunksPath(),
+                        properties.getCheckpointPath(),
+                        properties.getResultPath(),
+                        properties.getUsername());
+
+        TweetAnalyzer tweetAnalyzer =
+                new TweetAnalyzer(analysisClient, fileHandler, properties.getBatchSize());
+
+        tweetAnalyzer.run();
+    }
 }

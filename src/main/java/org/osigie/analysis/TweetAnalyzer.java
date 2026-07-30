@@ -68,6 +68,7 @@ public class TweetAnalyzer {
 
           analyzedTweets++;
         }
+        batch = fileHandler.nextBatch(batchSize);
       }
     } while (fileHandler.nextSegment());
 
