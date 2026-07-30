@@ -13,9 +13,9 @@ import org.osigie.io.impl.BinaryChunkReader;
 import org.osigie.model.CheckpointEntry;
 import org.osigie.model.TweetRecord;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TweetExtractorTest {
 
