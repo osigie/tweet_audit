@@ -8,11 +8,10 @@ import org.osigie.TestUtil;
 import org.osigie.exception.AnalysisException;
 import org.osigie.model.TweetRecord;
 
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GeminiAnalysisClientTest {
 
@@ -34,7 +33,7 @@ public class GeminiAnalysisClientTest {
     public void givenTweetThatFailedCriteria_whenAnalyze_thenReturnFalse() {
 
         GeminiClient mockGeminiClient = new TestUtil.MockGeminiClient("test-model", "key", "instruction");
-        TweetRecord tweetRecord = new TweetRecord(1L, 5, "id-100", "failed");
+        TweetRecord tweetRecord = new TweetRecord(1L, 5, "id-100", "fail");
 
         boolean result = new GeminiAnalysisClient(mockGeminiClient).analyze(tweetRecord);
 
