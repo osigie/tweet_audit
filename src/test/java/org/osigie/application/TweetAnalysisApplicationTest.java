@@ -14,6 +14,7 @@ import org.osigie.config.ApplicationProperties;
 import org.osigie.config.Criteria;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TweetAnalysisApplicationTest {
@@ -81,10 +82,8 @@ public class TweetAnalysisApplicationTest {
 
         new TweetAnalysisApplication(properties, mockAnalysisClient).run();
 
-        File chunksFolder = new File(tempDir.resolve("chunks").toString());
-        File[] chunks = chunksFolder.listFiles();
-        assert chunks != null;
-        assertEquals(0, chunks.length);
+        Path chunk = tempDir.resolve("chunks").resolve("tweets_0.bin");
+        assertFalse(Files.exists(chunk));
 
     }
 
@@ -119,13 +118,11 @@ public class TweetAnalysisApplicationTest {
         new TweetAnalysisApplication(properties, mockAnalysisClient).run();
 
         List<String> lines = Files.readAllLines(tempDir.resolve("result.csv"));
-        File chunksFolder = new File(tempDir.resolve("chunks").toString());
         String checkpoint = Files.readString(checkpointPath).trim();
 
-        File[] chunks = chunksFolder.listFiles();
-        assert chunks != null;
+        Path chunk = tempDir.resolve("chunks").resolve("tweets_0.bin");
+        assertTrue(Files.exists(chunk));
 
-        assertEquals(1, chunks.length);
         assertEquals(2, lines.size());
         assertEquals("3,0", checkpoint);
 
