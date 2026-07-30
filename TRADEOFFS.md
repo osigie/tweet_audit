@@ -1,0 +1,7 @@
+- Did sequential(streaming) when extracting tweet because I am just writing the read to different chunks and not doing any computation.
+- I decided to go with chunks and binary format for the extracted tweet using the write ahead log model which allow max size of a chunk and not overload a file.
+- I am flushing at every write to force the OS to write to disk and my extraction do not half recovery which means if there is a failure have way, it has to be recused manually or the chunks have to be deleted and start over.
+- On the analysis, I am batching and only loading a configurable amount of tweet in memory to be analyzed while using just one thread for the analysis because of the checkpointing so I don't have to keep multiple thread state and have to do reconciliation. If there is failure, there is immediate termination and checkpoint is saved at every row processed.
+- On error handling, I configured a timeout for the AI call, and I am terminating for every user errors and retrying for transient, timeout and resource exhaustion using exponential backoff with jitter while throttling every request to prevent fast burst on the AI endpoint.  
+- I am using feature-based architecture which allow separation based off of the feature.
+- I chose Java using version 25 because of it's statically type safety and robust library.
