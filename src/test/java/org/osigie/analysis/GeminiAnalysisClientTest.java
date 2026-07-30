@@ -8,7 +8,11 @@ import org.osigie.TestUtil;
 import org.osigie.exception.AnalysisException;
 import org.osigie.model.TweetRecord;
 
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class GeminiAnalysisClientTest {
 
