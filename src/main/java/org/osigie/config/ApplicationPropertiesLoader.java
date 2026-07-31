@@ -26,8 +26,25 @@ public final class ApplicationPropertiesLoader {
         String geminiApiKey = env.get(Constants.GEMINI_API_KEY);
         String geminiModel = env.getOrDefault(Constants.GEMINI_MODEL, "gemini-2.5-flash");
         String username = env.get(Constants.X_USERNAME);
-        int batchSize = Integer.parseInt(
-                env.getOrDefault(Constants.BATCH_SIZE, "10"));
+        int batchSize;
+        String batchSizeValue = env.getOrDefault(Constants.BATCH_SIZE, "10");
+
+        try {
+            batchSize = Integer.parseInt(batchSizeValue);
+
+            if (batchSize <= 0) {
+                throw new IllegalConfigException(
+                        Constants.BATCH_SIZE + " must be greater than 0."
+                );
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalConfigException(
+                    String.format(
+                            "Invalid value for %s: '%s'. It must be a valid integer.",
+                            Constants.BATCH_SIZE,
+                            batchSizeValue),
+                    e);
+        }
 
 
         Criteria criteria = loadCriteria(configPath);
