@@ -1,5 +1,6 @@
 package org.osigie.analysis;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.osigie.exception.AnalysisException;
@@ -8,6 +9,7 @@ import org.osigie.model.CheckpointEntry;
 import org.osigie.model.TweetRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class TweetAnalyzer {
   private final AnalysisClient analysisClient;
@@ -22,7 +24,7 @@ public class TweetAnalyzer {
   }
 
   /** Runs the full analysis pipeline across all segments with checkpointing. */
-  public void run() throws Exception {
+  public void run()  throws IOException {
     LOG.info("Starting tweet analysis.");
     long analyzedTweetsForDelete = 0;
     long analyzedTweets = 0;

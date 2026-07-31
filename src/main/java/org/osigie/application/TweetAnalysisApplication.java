@@ -1,5 +1,7 @@
 package org.osigie.application;
 
+import java.io.IOException;
+
 import org.osigie.analysis.AnalysisClient;
 import org.osigie.analysis.GeminiAnalysisClient;
 import org.osigie.analysis.TweetAnalyzer;
@@ -38,7 +40,7 @@ public class TweetAnalysisApplication {
         this.analysisClient = analysisClient;
     }
 
-    public void run() throws Exception {
+    public void run() throws IOException {
         TweetExtractor tweetExtractor =
                 new TweetExtractor(
                         properties.getChunksPath(),
